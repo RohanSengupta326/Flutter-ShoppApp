@@ -1,10 +1,14 @@
-class Product {
+import 'package:flutter/material.dart';
+
+
+
+class Product with ChangeNotifier {
   final String id;
   final String title;
   final String description;
   final double price;
   final String imageUrl;
-  final bool favorite;
+  bool favorite;
 
   Product({
     required this.id,
@@ -14,4 +18,10 @@ class Product {
     required this.imageUrl,
     this.favorite = false,
   });
+
+  // defining this function here cause connected the provider to the Product to check favorite or not
+  void toggleFavorite() {
+    favorite = !favorite;
+    notifyListeners();
+  }
 }
