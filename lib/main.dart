@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_proj6shopapp/providers/cart.dart';
 import './screens/product_detail_screen.dart';
 import './screens/product_overview_screen.dart';
 import 'package:provider/provider.dart';
@@ -12,10 +13,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData();
-    return ChangeNotifierProvider(
-      // Connecting the provider
-      create: (ctx) => Products(),
-      // instance of the provider class = Products class
+    return MultiProvider(
+      // to use multiple providers
+      providers: [
+        ChangeNotifierProvider(
+          // Connecting the provider
+          create: (ctx) => Products(),
+          // instance of the provider class = Products class
+        ),
+        // using create: when creating a new instance of a class and for existing object use .value
+
+        ChangeNotifierProvider(
+          create: (ctx) => Cart(),
+        ),
+      ],
+      // both providers take this child
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'amazon lite',

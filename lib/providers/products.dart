@@ -44,6 +44,10 @@ class Products with ChangeNotifier {
     // this means copy of the main items
   }
 
+  List<Product> get favorites {
+    return _items.where((element) => element.favorite).toList();
+  }
+
   void addProduct() {
     notifyListeners();
     // notifies the listeners that data is changed
@@ -52,6 +56,4 @@ class Products with ChangeNotifier {
   Product searchById(String id) {
     return _items.firstWhere((element) => element.id == id);
   }
-
-  
 }
