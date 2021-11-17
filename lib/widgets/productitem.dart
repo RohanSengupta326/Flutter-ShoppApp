@@ -53,7 +53,7 @@ class ProductItem extends StatelessWidget {
           ),
           trailing: IconButton(
             onPressed: () {
-              cart.addItems(product.id, product.price, product.title);
+              cart.addItems(product.id, product.price, product.title, product.imageUrl);
               //adds items to favorite maps in Cart class
             },
             icon: const Icon(

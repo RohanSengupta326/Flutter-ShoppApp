@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_drawer.dart';
+import '../screens/cart_screen.dart';
 import '../widgets/badge.dart';
 
 import '../widgets/products_grid.dart';
@@ -20,6 +22,7 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: AppDrawer(),
       appBar: AppBar(
         title: const Text(
           'Amazon Lite',
@@ -55,7 +58,9 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
             builder: (_, cartData, ch) => Badge(
               // pull from cartData which is Cart class
               child: IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).pushNamed(CartScreen.routeName);
+                },
                 icon: const Icon(
                   Icons.shopping_cart,
                 ),
