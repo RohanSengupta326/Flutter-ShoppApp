@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import '../screens/products_editing_screen.dart';
 import '../widgets/app_drawer.dart';
 import 'package:provider/provider.dart';
 import '../providers/products.dart';
 import '../widgets/manage_products.dart';
 
 class ManageProductsScreen extends StatelessWidget {
-  static const routeName = '/manae-products';
+  static const routeName = '/manage-products';
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,9 @@ class ManageProductsScreen extends StatelessWidget {
           ),
           actions: <Widget>[
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pushNamed(ProductEditingScreen.routeName);
+              },
               icon: const Icon(
                 Icons.add,
               ),
