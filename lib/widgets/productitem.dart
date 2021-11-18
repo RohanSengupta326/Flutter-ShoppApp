@@ -53,8 +53,28 @@ class ProductItem extends StatelessWidget {
           ),
           trailing: IconButton(
             onPressed: () {
-              cart.addItems(product.id, product.price, product.title, product.imageUrl);
+              cart.addItems(
+                  product.id, product.price, product.title, product.imageUrl);
               //adds items to favorite maps in Cart class
+              Scaffold.of(context).removeCurrentSnackBar();
+              Scaffold.of(context).showSnackBar(
+                // to show msg down in the screen that item was added
+
+                SnackBar(
+                  content: const Text(
+                    'Added to cart Successfully!',
+                  ),
+                  duration: const Duration(seconds: 4),
+                  action: SnackBarAction(
+                      label: 'UNDO',
+                      onPressed: () {
+                        cart.removeSingleItem(
+                          // remove item from cart
+                          product.id,
+                        );
+                      }),
+                ),
+              );
             },
             icon: const Icon(
               Icons.shopping_cart,

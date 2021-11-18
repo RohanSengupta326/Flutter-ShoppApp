@@ -35,6 +35,48 @@ class Cartitem extends StatelessWidget {
         child:
             Icon(Icons.delete, color: Theme.of(context).colorScheme.secondary),
       ),
+      confirmDismiss: (direction) {
+        // function takes the direction of swipe as an argument
+        return showDialog(
+          // showDialog returns Future<bool> => future<bool> means it will return a bool later, confirmDismiss wants a bool
+          // fortunately showDialog returns a bool
+          context: context,
+          builder: (ctx) => AlertDialog(
+            // this is to design the dialog box i wanna show
+            title: const Text(
+              'Are you sure? ',
+            ),
+            content: const Text(
+              'The item in the cart will be deleted!',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(
+                    false,
+                  );
+                  // pop(false) means return bool false, which means dont delete
+                },
+                child: const Text(
+                  'No',
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(
+                    true,
+                  );
+                  // pop(true) return bool true, deletes the item
+                },
+                child: const Text(
+                  'Yes',
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      // to check if user really wanna delete
       onDismissed: (direction) {
         Provider.of<Cart>(context, listen: false).removeItem(prodid);
         // calling the function to delete items from map

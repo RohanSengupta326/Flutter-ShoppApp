@@ -8,12 +8,13 @@ class CartItem {
   final int quantity;
   final String imgUrl;
 
-  CartItem(
-      {required this.id,
-      required this.title,
-      required this.price,
-      required this.quantity,
-      required this.imgUrl,});
+  CartItem({
+    required this.id,
+    required this.title,
+    required this.price,
+    required this.quantity,
+    required this.imgUrl,
+  });
 }
 
 class Cart with ChangeNotifier {
@@ -65,13 +66,37 @@ class Cart with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeItem(String prodId){
+  void removeItem(String prodId) {
     _items.remove(prodId);
     // this prodId is a key of the map
     notifyListeners();
   }
 
-  void clearCart(){
+  void removeSingleItem(String productId) {
+    if (!_items.containsKey(productId)) {
+      return;
+    }
+    if (_items[productId]!.quantity > 1) {
+      // if quantitiy more than 1 then remove 1 item
+      _items.update(
+        productId,
+        (existingval) => CartItem(
+          id: existingval.id,
+          title: existingval.title,
+          price: existingval.price,
+          quantity: existingval.quantity - 1,
+          // minus 1 item
+          imgUrl: existingval.imgUrl,
+        ),
+      );
+    } else {
+      _items.remove(productId);
+      // if 1 item left then delete that too
+    }
+    notifyListeners();
+  }
+
+  void clearCart() {
     _items = {};
     notifyListeners();
   }
