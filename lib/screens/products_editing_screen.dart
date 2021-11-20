@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../providers/product.dart';
+import 'package:provider/provider.dart';
+import '../providers/products.dart';
 
 class ProductEditingScreen extends StatefulWidget {
   static const routeName = '/dashboard';
@@ -24,6 +26,14 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
     title: '',
     description: '',
   );
+  bool _isInit = true;
+  var _initItems = {
+    'id': '',
+    'title': '',
+    'description': '',
+    'price': '',
+    'imageUrl': '',
+  };
 
   @override
   void initState() {
@@ -32,6 +42,34 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
     // showFocus is a function I made to check focus is on the image url TextFormField or not
     // so if the focus is not on the field still the image will be previewed
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // using to fetch the arguments with modalRoute sent from manage_products page
+    if (_isInit) {
+      // checking this condition so that next two lineds only load once, doesnt get rebuild evertime the page rebuilds
+      final prodId = ModalRoute.of(context)!.settings.arguments as String;
+      if (prodId != "") {
+        // if recieved the arg then only go along, cause also in case of adding new prod we come to this page but without
+        // any arg, so checking.
+        _editedProduct = Provider.of<Products>(context).searchById(prodId);
+        // filled edited product with given values
+        _initItems = {
+          'id': _editedProduct.id,
+          'title': _editedProduct.title,
+          'description': _editedProduct.description,
+          'price': _editedProduct.price.toString(),
+          'imageUrl': '',
+        };
+        // setting this values to show inital values before editing in the text fields
+        _imagecontroller.text = _editedProduct.imageUrl;
+        // imageUrl cant be set directly cause controller is present(intial value and controller cant be present at the
+        // same time), so set the url of the prev prod like this
+      }
+    }
+    _isInit = false;
+    super.didChangeDependencies();
   }
 
   @override
@@ -69,11 +107,18 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
     _form.currentState!.save();
     // notifies the text fields that save is called, no onSaved function is called in the textfields to actually save the values
     // .save is a function of Form, To call the func save() of Form outside the Widget Build we need this globalKey
-    print(_editedProduct.title);
-    print(_editedProduct.price);
-    print(_editedProduct.description);
-    print(_editedProduct.imageUrl);
-    print(_editedProduct.id);
+
+    if (_editedProduct.id.isNotEmpty) {
+      Provider.of<Products>(context, listen: false)
+          .editProduct(_editedProduct.id, _editedProduct);
+      // calling the edit function to edit the item
+    } else {
+      // id empty so its adding a new product
+      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+      // calling the addproduct function from the products class and sending the productData as argument
+    }
+    Navigator.of(context).pop();
+    // closing the page while added new item to the list
   }
 
   @override
@@ -101,6 +146,8 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
           children: [
             TextFormField(
               // in TextFormField dont need to controller like in TextField cause Form handles those in the background
+              initialValue: _initItems['title'],
+              // setting values before edit
               decoration: const InputDecoration(
                 labelText: 'Title',
                 hintText: 'enter the title of the product',
@@ -115,6 +162,8 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
               onSaved: (value) {
                 // on saved im filling the Product class with new values
                 _editedProduct = Product(
+                  favorite: _editedProduct.favorite,
+                  // doing this so that we dont loose which product before edit was favorite or not
                   id: _editedProduct.id,
                   title: value.toString(),
                   // this is title field so only filling title field with new value
@@ -134,6 +183,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
               },
             ),
             TextFormField(
+              initialValue: _initItems['price'],
               decoration: const InputDecoration(
                 labelText: 'Price',
                 hintText: 'enter the price of the product',
@@ -151,6 +201,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
               onSaved: (value) {
                 // on saved im filling the Product class with new values
                 _editedProduct = Product(
+                  favorite: _editedProduct.favorite,
                   id: _editedProduct.id,
                   title: _editedProduct.title,
                   description: _editedProduct.description,
@@ -175,6 +226,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
               },
             ),
             TextFormField(
+              initialValue: _initItems['description'],
               decoration: const InputDecoration(
                 labelText: 'Description',
                 hintText: 'enter a description about the product',
@@ -188,6 +240,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
               onSaved: (value) {
                 // on saved im filling the Product class with new values
                 _editedProduct = Product(
+                  favorite: _editedProduct.favorite,
                   id: _editedProduct.id,
                   title: _editedProduct.title,
                   description: value.toString(),
@@ -253,6 +306,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
                     onSaved: (value) {
                       // on saved im filling the Product class with new values
                       _editedProduct = Product(
+                        favorite: _editedProduct.favorite,
                         id: _editedProduct.id,
                         title: _editedProduct.title,
                         description: _editedProduct.description,

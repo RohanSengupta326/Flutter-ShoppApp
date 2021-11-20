@@ -48,9 +48,34 @@ class Products with ChangeNotifier {
     return _items.where((element) => element.favorite).toList();
   }
 
-  void addProduct() {
+  void addProduct(Product productData) {
+    final newproduct = Product(
+      id: DateTime.now().toString(),
+      title: productData.title,
+      description: productData.description,
+      price: productData.price,
+      imageUrl: productData.imageUrl,
+    );
+    // new values inserted in Product instance
+    _items.add(newproduct);
+    // added newproduct to list
     notifyListeners();
     // notifies the listeners that data is changed
+  }
+
+  void editProduct(String Id, Product newProd) {
+    final prodIndex = _items.indexWhere((element) => element.id == Id);
+    // found the index of the product in the Items list
+    if (prodIndex >= 0) {
+      _items[prodIndex] = newProd;
+      // change the old item with the edited item
+    }
+    notifyListeners();
+  }
+
+  void deleteItem(String Id) {
+    _items.removeWhere((element) => element.id == Id);
+    notifyListeners();
   }
 
   Product searchById(String id) {

@@ -20,7 +20,10 @@ class ManageProductsScreen extends StatelessWidget {
           actions: <Widget>[
             IconButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(ProductEditingScreen.routeName);
+                Navigator.of(context)
+                    .pushNamed(ProductEditingScreen.routeName, arguments: '');
+                    // passing argument as '' cause its not taking null => then its causing problem to add product
+                    // in the products_editing_screen, 
               },
               icon: const Icon(
                 Icons.add,
@@ -35,6 +38,7 @@ class ManageProductsScreen extends StatelessWidget {
               // this column to put the divider in between
               children: [
                 ManageProducts(
+                  userProducts.items[index].id,
                   userProducts.items[index].title,
                   userProducts.items[index].imageUrl,
                 ),
