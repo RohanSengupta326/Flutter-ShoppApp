@@ -1,5 +1,8 @@
 import './product.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+// for converting to json
 
 class Products with ChangeNotifier {
   // changeNotifier Mixin => to use a function to notify the listeners about the change
@@ -49,6 +52,27 @@ class Products with ChangeNotifier {
   }
 
   void addProduct(Product productData) {
+    // add http requests in provider
+    const urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json";
+    var url = Uri.parse(
+      urlori,
+    );
+    // /products.json is a folder I want to create in the database
+    http.post(
+      // post request , save the data to the server
+      url,
+      body: json.encode(
+        // converts this map to json, comes from dart:convert package
+        {
+          'title': productData.title,
+          'description': productData.description,
+          'price': productData.price,
+          'imageUrl': productData.imageUrl,
+          'isFavorite': productData.favorite,
+        },
+      ),
+    );
     final newproduct = Product(
       id: DateTime.now().toString(),
       title: productData.title,
