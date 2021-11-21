@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
           create: (ctx) => Order(),
         )
       ],
-      // both providers take this child
+      // all 3 providers take this child
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'amazon lite',

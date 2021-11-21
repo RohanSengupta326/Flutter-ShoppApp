@@ -11,8 +11,8 @@ class ProductEditingScreen extends StatefulWidget {
 }
 
 class _ProductEditingScreenState extends State<ProductEditingScreen> {
-  final _focusNow = FocusNode();
-  // used to requesto to change focus
+  final _titleFocus = FocusNode();
+  // used to request to change focus
   final _descFocus = FocusNode();
   // FocusNode need to disposed or memory leaks can happen
   final _imagecontroller = TextEditingController();
@@ -75,7 +75,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
   @override
   void dispose() {
     _imgFocus.removeListener(showFocus);
-    _focusNow.dispose();
+    _titleFocus.dispose();
     _descFocus.dispose();
     // getting disposed of those when exiting this screen, avoiding memory leaks
     _imagecontroller.dispose();
@@ -108,7 +108,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
     // notifies the text fields that save is called, no onSaved function is called in the textfields to actually save the values
     // .save is a function of Form, To call the func save() of Form outside the Widget Build we need this globalKey
 
-    if (_editedProduct.id.isNotEmpty) {
+    if (_editedProduct.id != '') {
       Provider.of<Products>(context, listen: false)
           .editProduct(_editedProduct.id, _editedProduct);
       // calling the edit function to edit the item
@@ -125,21 +125,22 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
-            'DashBoard',
-          ),
-          actions: [
-            IconButton(
-                onPressed: _saveForm,
-                // to save the form the custom built function is called
-                icon: const Icon(
-                  Icons.check,
-                ))
-          ]),
+        title: const Text(
+          'DashBoard',
+        ),
+        actions: [
+          IconButton(
+              onPressed: _saveForm,
+              // to save the form the custom built function is called
+              icon: const Icon(
+                Icons.check,
+              ))
+        ],
+      ),
       body: Form(
         // for using a form
         key: _form,
-        // connecting global key with the form
+        // connecting global key with the form to access the forms methods outside the builder function
         child: ListView(
           // not unlimited fields so not .builder
           padding: const EdgeInsets.all(10),
@@ -156,7 +157,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
               // goes to next field while hit the submit button
               onFieldSubmitted: (_) {
                 // when the submit button is hit do this, this function takes value as the arg but here we ignore it
-                FocusScope.of(context).requestFocus(_focusNow);
+                FocusScope.of(context).requestFocus(_titleFocus);
                 // requests to change the focus from one field to another
               },
               onSaved: (value) {
@@ -190,7 +191,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
               ),
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
-              focusNode: _focusNow,
+              focusNode: _titleFocus,
               // to change focus to this field when submit is hit on the prev field
               onFieldSubmitted: (_) {
                 FocusScope.of(context).requestFocus(

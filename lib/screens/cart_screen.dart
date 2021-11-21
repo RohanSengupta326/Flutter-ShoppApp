@@ -30,6 +30,7 @@ class CartScreen extends StatelessWidget {
                   const Spacer(),
                   // puts text in one side and chip and button on another side
                   Chip(
+                    // a rounded corner small space
                     label: FittedBox(
                         child: Text('\$${cartData.totalAmount.toString()}')),
                     backgroundColor: Theme.of(context).colorScheme.secondary,

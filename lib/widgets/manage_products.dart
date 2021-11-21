@@ -15,6 +15,7 @@ class ManageProducts extends StatelessWidget {
       title: Text(title),
       leading: CircleAvatar(
         backgroundImage: NetworkImage(
+          // NetWorkImage is not a widget, its a provider built in flutter to fetch image
           imgUrl,
         ),
       ),
@@ -44,7 +45,6 @@ class ManageProducts extends StatelessWidget {
           ],
         ),
       ),
-      // NetWorkImage is not a widget, its a provider built in flutter to fetch image
     );
   }
 }

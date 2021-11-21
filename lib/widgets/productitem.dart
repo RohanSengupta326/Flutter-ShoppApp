@@ -40,6 +40,7 @@ class ProductItem extends StatelessWidget {
           leading: Consumer<Product>(
             // same as provider.of<Product>(context) but just for a particular widget, so this widget only gets rebuilt
             builder: (ctx, product, child) => IconButton(
+              // product is to get all methods from Product class
               // child is used to store anything in this widget that I dont want to rebuild
               /* child: Text('change nothing!'), => this get stored in that child */
               onPressed: () {
@@ -57,6 +58,7 @@ class ProductItem extends StatelessWidget {
                   product.id, product.price, product.title, product.imageUrl);
               //adds items to favorite maps in Cart class
               Scaffold.of(context).removeCurrentSnackBar();
+              // before showing a snackbar , remove previous snakcbar first
               Scaffold.of(context).showSnackBar(
                 // to show msg down in the screen that item was added
 

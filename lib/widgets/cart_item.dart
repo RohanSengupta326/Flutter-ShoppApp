@@ -37,6 +37,7 @@ class Cartitem extends StatelessWidget {
       ),
       confirmDismiss: (direction) {
         // function takes the direction of swipe as an argument
+        // to check if user really wanna delete
         return showDialog(
           // showDialog returns Future<bool> => future<bool> means it will return a bool later, confirmDismiss wants a bool
           // fortunately showDialog returns a bool
@@ -76,7 +77,7 @@ class Cartitem extends StatelessWidget {
           ),
         );
       },
-      // to check if user really wanna delete
+      
       onDismissed: (direction) {
         Provider.of<Cart>(context, listen: false).removeItem(prodid);
         // calling the function to delete items from map
