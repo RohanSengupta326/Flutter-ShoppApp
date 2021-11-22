@@ -6,6 +6,7 @@ import '../widgets/badge.dart';
 import '../widgets/products_grid.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart.dart';
+import '../providers/products.dart';
 
 enum Filters {
   fav,
@@ -19,6 +20,35 @@ class ProductOverviewScreen extends StatefulWidget {
 
 class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
   bool showfav = false;
+  bool _isInit = true;
+
+  // HACK FOR CALLING PROVIDER IN INIT STATE
+  /* 
+  @override
+  void initState() {
+    // not good to create http requests here so doing that in provider Products
+    Future.delayed(Duration.zero).then(
+      (value) {
+        Provider.of<Products>(context).fetchOrSetProducts();
+        // using context but initState is running before even creating any class, so cant access context, so put in Future
+        // but if called listen:false then it would have worked without Future.delayed
+      },
+    );
+    super.initState();
+  } */
+
+  // PROPER WAY FOR CALLING PROVIDER BEFORE CODE EXECUTION
+  @override
+  void didChangeDependencies() {
+    // it actually runs after creating classes but before running build function so can call provider here
+    if (_isInit) {
+      // using _isInit so that after loading page it just fetch the data once no every time its getting rebuilt
+      Provider.of<Products>(context).fetchOrSetProducts();
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

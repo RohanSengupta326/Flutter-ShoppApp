@@ -51,7 +51,13 @@ class Products with ChangeNotifier {
     return _items.where((element) => element.favorite).toList();
   }
 
-  void addProduct(Product productData) {
+/* 
+  Future<void> addProduct(Product productData) {
+    // now we need to return a Future from this function, cant do it inside .then() cause thats a nested function and
+    // actually returns nothing for the addProduct function, also cant return outside the anonymus function cause that
+    // will return first then recieve the info from the server later, so we return the whole http.post which return a
+    // future cause its inbuilt
+
     // add http requests in provider
     const urlori =
         "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json";
@@ -59,7 +65,8 @@ class Products with ChangeNotifier {
       urlori,
     );
     // /products.json is a folder I want to create in the database
-    http.post(
+    return http
+        .post(
       // post request , save the data to the server
       url,
       body: json.encode(
@@ -72,19 +79,96 @@ class Products with ChangeNotifier {
           'isFavorite': productData.favorite,
         },
       ),
+    )
+        .then(
+      (response) {
+        // http.post actually returns a Future<Response>, means it takes the response from the server but that takes some time
+        //(thats called asynchronus code or async) but our code doesnt wait for it to fetch the Response(<response>) from the server, it continues, so to wait before
+        //executing the later code we put it in the then, so that it takes the response first then execute the rest portion of
+        //the code
+        final newproduct = Product(
+          id: json.decode(response.body)['name'],
+          // decoding the response body from the server and its a map with a unique  id as the value with name key
+          title: productData.title,
+          description: productData.description,
+          price: productData.price,
+          imageUrl: productData.imageUrl,
+        );
+        // new values inserted in Product instance
+        _items.add(newproduct);
+        // added newproduct to list
+        notifyListeners();
+        // notifies the listeners that data is changed);
+      },
+    ).catchError(
+      (error) {
+        print(error);
+        throw error;
+        // so that we can get the error in the widet so we can show the user something
+      },
     );
-    final newproduct = Product(
-      id: DateTime.now().toString(),
-      title: productData.title,
-      description: productData.description,
-      price: productData.price,
-      imageUrl: productData.imageUrl,
+  }
+ */
+
+  Future<void> fetchOrSetProducts() async {
+    const urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json";
+    var url = Uri.parse(
+      urlori,
     );
-    // new values inserted in Product instance
-    _items.add(newproduct);
-    // added newproduct to list
-    notifyListeners();
-    // notifies the listeners that data is changed
+    try {
+      final response = await http.get(url);
+      print(json.decode(response.body));
+    } catch (error) {
+      print(error);
+      throw (error);
+    }
+  }
+
+  // the same function now with async and await
+  Future<void> addProduct(Product productData) async {
+    const urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json";
+    var url = Uri.parse(
+      urlori,
+    );
+    try {
+      // runs if succeds
+      final response = await http.post(
+        // await actually hides all the .then() and does it in the back
+        // post request , save the data to the server
+        url,
+        body: json.encode(
+          // converts this map to json, comes from dart:convert package
+          {
+            'title': productData.title,
+            'description': productData.description,
+            'price': productData.price,
+            'imageUrl': productData.imageUrl,
+            'isFavorite': productData.favorite,
+          },
+        ),
+      );
+      // no need to put the code below inside .then() anymore as using async
+      final newproduct = Product(
+        id: json.decode(response.body)['name'],
+        // decoding the response body from the server and its a map with a unique  id as the value with name key
+        title: productData.title,
+        description: productData.description,
+        price: productData.price,
+        imageUrl: productData.imageUrl,
+      );
+      // new values inserted in Product instance
+      _items.add(newproduct);
+      // added newproduct to list
+      notifyListeners();
+      // notifies the listeners that data is changed
+    } catch (error) {
+      // runs if fails try
+      print(error);
+      throw (error);
+      // so that we can get the error in the widet so we can show the user something
+    }
   }
 
   void editProduct(String Id, Product newProd) {

@@ -34,6 +34,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
     'price': '',
     'imageUrl': '',
   };
+  var isLoading = false;
 
   @override
   void initState() {
@@ -97,7 +98,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
     }
   }
 
-  void _saveForm() {
+  void _saveForm() async {
     final isValid = _form.currentState!.validate();
     // triggers the validator in the textformfield
     if (!isValid) {
@@ -108,17 +109,62 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
     // notifies the text fields that save is called, no onSaved function is called in the textfields to actually save the values
     // .save is a function of Form, To call the func save() of Form outside the Widget Build we need this globalKey
 
+    setState(
+      () {
+        isLoading = true;
+      },
+    );
+
     if (_editedProduct.id != '') {
       Provider.of<Products>(context, listen: false)
           .editProduct(_editedProduct.id, _editedProduct);
       // calling the edit function to edit the item
+      setState(() {
+        isLoading = false;
+        // stop loading before popping
+      });
+      Navigator.of(context).pop();
+      // closing the page while added new item to the list
     } else {
       // id empty so its adding a new product
-      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
-      // calling the addproduct function from the products class and sending the productData as argument
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_editedProduct);
+        // calling the addproduct function from the products class and sending the productData as argument
+      } catch (error) {
+        await showDialog<Null>(
+          // returns showDialog later when error occurred in the future
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text(
+              'An error occurred!',
+            ),
+            content: const Text(
+              'Something Went Wrong!',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  'Okay!',
+                ),
+              ),
+            ],
+          ),
+        );
+      } finally {
+        setState(
+          () {
+            isLoading = false;
+            // stop loading before popping
+          },
+        );
+        Navigator.of(context).pop();
+        // closing the page while added new item to the list
+      }
     }
-    Navigator.of(context).pop();
-    // closing the page while added new item to the list
   }
 
   @override
@@ -137,172 +183,75 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
               ))
         ],
       ),
-      body: Form(
-        // for using a form
-        key: _form,
-        // connecting global key with the form to access the forms methods outside the builder function
-        child: ListView(
-          // not unlimited fields so not .builder
-          padding: const EdgeInsets.all(10),
-          children: [
-            TextFormField(
-              // in TextFormField dont need to controller like in TextField cause Form handles those in the background
-              initialValue: _initItems['title'],
-              // setting values before edit
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                hintText: 'enter the title of the product',
-              ),
-              textInputAction: TextInputAction.next,
-              // goes to next field while hit the submit button
-              onFieldSubmitted: (_) {
-                // when the submit button is hit do this, this function takes value as the arg but here we ignore it
-                FocusScope.of(context).requestFocus(_titleFocus);
-                // requests to change the focus from one field to another
-              },
-              onSaved: (value) {
-                // on saved im filling the Product class with new values
-                _editedProduct = Product(
-                  favorite: _editedProduct.favorite,
-                  // doing this so that we dont loose which product before edit was favorite or not
-                  id: _editedProduct.id,
-                  title: value.toString(),
-                  // this is title field so only filling title field with new value
-                  description: _editedProduct.description,
-                  // title field so other values keeping them same as previous not new value
-                  price: _editedProduct.price,
-                  imageUrl: _editedProduct.imageUrl,
-                );
-              },
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter a title';
-                  // returns string while error
-                }
-                return null;
-                // returns null when valid input
-              },
-            ),
-            TextFormField(
-              initialValue: _initItems['price'],
-              decoration: const InputDecoration(
-                labelText: 'Price',
-                hintText: 'enter the price of the product',
-              ),
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.next,
-              focusNode: _titleFocus,
-              // to change focus to this field when submit is hit on the prev field
-              onFieldSubmitted: (_) {
-                FocusScope.of(context).requestFocus(
-                  _descFocus,
-                );
-                // to focus now to desc field
-              },
-              onSaved: (value) {
-                // on saved im filling the Product class with new values
-                _editedProduct = Product(
-                  favorite: _editedProduct.favorite,
-                  id: _editedProduct.id,
-                  title: _editedProduct.title,
-                  description: _editedProduct.description,
-                  price: double.parse(
-                    value.toString(),
-                  ),
-                  imageUrl: _editedProduct.imageUrl,
-                );
-              },
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter a price';
-                }
-                if (double.tryParse(value) == null) {
-                  // if cant parse then tryParse returns null
-                  return 'enter valid price';
-                }
-                if (double.parse(value) <= 0) {
-                  return 'enter valid price';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              initialValue: _initItems['description'],
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'enter a description about the product',
-              ),
-              maxLines: 3,
-              // max 3 lines can be added
-              keyboardType: TextInputType.multiline,
-              // for long note, and this time no .next, cause we dont know when the use is done writting
-              focusNode: _descFocus,
-              // to change focus to this field when submit is hit on the prev field
-              onSaved: (value) {
-                // on saved im filling the Product class with new values
-                _editedProduct = Product(
-                  favorite: _editedProduct.favorite,
-                  id: _editedProduct.id,
-                  title: _editedProduct.title,
-                  description: value.toString(),
-                  price: _editedProduct.price,
-                  imageUrl: _editedProduct.imageUrl,
-                );
-              },
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'please enter a description';
-                }
-                if (value.length < 10) {
-                  return 'please enter atleast 10 characters';
-                }
-                return null;
-              },
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  margin: const EdgeInsets.only(
-                    top: 10,
-                    right: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      width: 1,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                  child: _imagecontroller.text.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'Image Preview',
-                          ),
-                        )
-                      : FittedBox(
-                          child: Image.network(
-                            _imagecontroller.text,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).primaryColor,
                 ),
-                Expanded(
-                  // cause row takes unlimited width but field cant
-                  child: TextFormField(
+              ),
+            )
+          : Form(
+              // for using a form
+              key: _form,
+              // connecting global key with the form to access the forms methods outside the builder function
+              child: ListView(
+                // not unlimited fields so not .builder
+                padding: const EdgeInsets.all(10),
+                children: [
+                  TextFormField(
+                    // in TextFormField dont need to controller like in TextField cause Form handles those in the background
+                    initialValue: _initItems['title'],
+                    // setting values before edit
                     decoration: const InputDecoration(
-                      labelText: 'Image URL',
-                      hintText: 'enter a Image URL of the product',
+                      labelText: 'Title',
+                      hintText: 'enter the title of the product',
                     ),
-                    keyboardType: TextInputType.url,
-                    textInputAction: TextInputAction.done,
-                    // on submit all form fillup done
-                    controller: _imagecontroller,
-                    focusNode: _imgFocus,
+                    textInputAction: TextInputAction.next,
+                    // goes to next field while hit the submit button
                     onFieldSubmitted: (_) {
-                      _saveForm();
-                      // also submit button on the last field saves the form values
+                      // when the submit button is hit do this, this function takes value as the arg but here we ignore it
+                      FocusScope.of(context).requestFocus(_titleFocus);
+                      // requests to change the focus from one field to another
+                    },
+                    onSaved: (value) {
+                      // on saved im filling the Product class with new values
+                      _editedProduct = Product(
+                        favorite: _editedProduct.favorite,
+                        // doing this so that we dont loose which product before edit was favorite or not
+                        id: _editedProduct.id,
+                        title: value.toString(),
+                        // this is title field so only filling title field with new value
+                        description: _editedProduct.description,
+                        // title field so other values keeping them same as previous not new value
+                        price: _editedProduct.price,
+                        imageUrl: _editedProduct.imageUrl,
+                      );
+                    },
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a title';
+                        // returns string while error
+                      }
+                      return null;
+                      // returns null when valid input
+                    },
+                  ),
+                  TextFormField(
+                    initialValue: _initItems['price'],
+                    decoration: const InputDecoration(
+                      labelText: 'Price',
+                      hintText: 'enter the price of the product',
+                    ),
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.next,
+                    focusNode: _titleFocus,
+                    // to change focus to this field when submit is hit on the prev field
+                    onFieldSubmitted: (_) {
+                      FocusScope.of(context).requestFocus(
+                        _descFocus,
+                      );
+                      // to focus now to desc field
                     },
                     onSaved: (value) {
                       // on saved im filling the Product class with new values
@@ -311,32 +260,137 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
                         id: _editedProduct.id,
                         title: _editedProduct.title,
                         description: _editedProduct.description,
-                        price: _editedProduct.price,
-                        imageUrl: value.toString(),
+                        price: double.parse(
+                          value.toString(),
+                        ),
+                        imageUrl: _editedProduct.imageUrl,
                       );
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'Please enter an image URL.';
+                        return 'Please enter a price';
                       }
-                      if (!value.startsWith('http') &&
-                          !value.startsWith('https')) {
-                        return 'Please enter a valid URL.';
+                      if (double.tryParse(value) == null) {
+                        // if cant parse then tryParse returns null
+                        return 'enter valid price';
                       }
-                      if (!value.endsWith('.png') &&
-                          !value.endsWith('.jpg') &&
-                          !value.endsWith('.jpeg')) {
-                        return 'Please enter a valid image URL.';
+                      if (double.parse(value) <= 0) {
+                        return 'enter valid price';
                       }
                       return null;
                     },
                   ),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
+                  TextFormField(
+                    initialValue: _initItems['description'],
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'enter a description about the product',
+                    ),
+                    maxLines: 3,
+                    // max 3 lines can be added
+                    keyboardType: TextInputType.multiline,
+                    // for long note, and this time no .next, cause we dont know when the use is done writting
+                    focusNode: _descFocus,
+                    // to change focus to this field when submit is hit on the prev field
+                    onSaved: (value) {
+                      // on saved im filling the Product class with new values
+                      _editedProduct = Product(
+                        favorite: _editedProduct.favorite,
+                        id: _editedProduct.id,
+                        title: _editedProduct.title,
+                        description: value.toString(),
+                        price: _editedProduct.price,
+                        imageUrl: _editedProduct.imageUrl,
+                      );
+                    },
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'please enter a description';
+                      }
+                      if (value.length < 10) {
+                        return 'please enter atleast 10 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        margin: const EdgeInsets.only(
+                          top: 10,
+                          right: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 1,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        child: _imagecontroller.text.isEmpty
+                            ? const Center(
+                                child: Text(
+                                  'Image Preview',
+                                ),
+                              )
+                            : FittedBox(
+                                child: Image.network(
+                                  _imagecontroller.text,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                      ),
+                      Expanded(
+                        // cause row takes unlimited width but field cant
+                        child: TextFormField(
+                          decoration: const InputDecoration(
+                            labelText: 'Image URL',
+                            hintText: 'enter a Image URL of the product',
+                          ),
+                          keyboardType: TextInputType.url,
+                          textInputAction: TextInputAction.done,
+                          // on submit all form fillup done
+                          controller: _imagecontroller,
+                          focusNode: _imgFocus,
+                          onFieldSubmitted: (_) {
+                            _saveForm();
+                            // also submit button on the last field saves the form values
+                          },
+                          onSaved: (value) {
+                            // on saved im filling the Product class with new values
+                            _editedProduct = Product(
+                              favorite: _editedProduct.favorite,
+                              id: _editedProduct.id,
+                              title: _editedProduct.title,
+                              description: _editedProduct.description,
+                              price: _editedProduct.price,
+                              imageUrl: value.toString(),
+                            );
+                          },
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Please enter an image URL.';
+                            }
+                            if (!value.startsWith('http') &&
+                                !value.startsWith('https')) {
+                              return 'Please enter a valid URL.';
+                            }
+                            if (!value.endsWith('.png') &&
+                                !value.endsWith('.jpg') &&
+                                !value.endsWith('.jpeg')) {
+                              return 'Please enter a valid image URL.';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
     );
   }
 }
