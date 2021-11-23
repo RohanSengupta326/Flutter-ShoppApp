@@ -116,7 +116,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
     );
 
     if (_editedProduct.id != '') {
-      Provider.of<Products>(context, listen: false)
+      await Provider.of<Products>(context, listen: false)
           .editProduct(_editedProduct.id, _editedProduct);
       // calling the edit function to edit the item
       setState(() {

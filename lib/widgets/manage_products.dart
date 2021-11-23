@@ -11,6 +11,7 @@ class ManageProducts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaffoldSnack = Scaffold.of(context);
     return ListTile(
       title: Text(title),
       leading: CircleAvatar(
@@ -34,8 +35,22 @@ class ManageProducts extends StatelessWidget {
               color: Theme.of(context).primaryColor,
             ),
             IconButton(
-              onPressed: () {
-                Provider.of<Products>(context, listen: false).deleteItem(id);
+              onPressed: () async {
+                try {
+                  await Provider.of<Products>(context, listen: false)
+                      .deleteItem(id);
+                } catch (error) {
+                  scaffoldSnack.removeCurrentSnackBar();
+                  scaffoldSnack.showSnackBar(
+                    // using scaffoldSnack variable cause cant call scaffold.of(context) inside here due to some internal flutter
+                    // causes
+                    const SnackBar(
+                      content: Text(
+                        'Couldn\'t delete file ',
+                      ),
+                    ),
+                  );
+                }
               },
               icon: const Icon(
                 Icons.delete,

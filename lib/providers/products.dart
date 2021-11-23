@@ -2,12 +2,15 @@ import './product.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../providers/product.dart';
 // for converting to json
+import '../models/http_exception.dart';
 
 class Products with ChangeNotifier {
   // changeNotifier Mixin => to use a function to notify the listeners about the change
   // mixin are class inheritance lite
-  final List<Product> _items = [
+  List<Product> _items = [
+    /* 
     Product(
       id: 'p1',
       title: 'Red Shirt',
@@ -39,7 +42,7 @@ class Products with ChangeNotifier {
       price: 49.99,
       imageUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    ),
+    ), */
   ];
 
   List<Product> get items {
@@ -61,7 +64,7 @@ class Products with ChangeNotifier {
     // add http requests in provider
     const urlori =
         "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json";
-    var url = Uri.parse(
+    final url = Uri.parse(
       urlori,
     );
     // /products.json is a folder I want to create in the database
@@ -113,12 +116,33 @@ class Products with ChangeNotifier {
   Future<void> fetchOrSetProducts() async {
     const urlori =
         "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json";
-    var url = Uri.parse(
+    final url = Uri.parse(
       urlori,
     );
     try {
       final response = await http.get(url);
-      print(json.decode(response.body));
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      // it actually returns a nested map, so thats why we are recieving the data like Map<String...> but not like Map<String, Map<>>
+      // cause flutter doesnt understand that
+      final List<Product> prods = [];
+      extractedData.forEach(
+        // for each key of the parent map
+        (prodIdKey, prodData) {
+          // prodIdKey is the key of the parent map, prodData is the child map
+          prods.add(
+            Product(
+              id: prodIdKey,
+              description: prodData['description'],
+              imageUrl: prodData['imageUrl'],
+              price: prodData['price'],
+              title: prodData['title'],
+              favorite: prodData['isFavorite'],
+            ),
+          );
+        },
+      );
+      _items = prods;
+      notifyListeners();
     } catch (error) {
       print(error);
       throw (error);
@@ -129,7 +153,7 @@ class Products with ChangeNotifier {
   Future<void> addProduct(Product productData) async {
     const urlori =
         "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json";
-    var url = Uri.parse(
+    final url = Uri.parse(
       urlori,
     );
     try {
@@ -149,7 +173,7 @@ class Products with ChangeNotifier {
           },
         ),
       );
-      // no need to put the code below inside .then() anymore as using async
+      // no need to put the code below inside .then() anymore as using await
       final newproduct = Product(
         id: json.decode(response.body)['name'],
         // decoding the response body from the server and its a map with a unique  id as the value with name key
@@ -171,19 +195,58 @@ class Products with ChangeNotifier {
     }
   }
 
-  void editProduct(String Id, Product newProd) {
-    final prodIndex = _items.indexWhere((element) => element.id == Id);
+  Future<void> editProduct(String id, Product newProd) async {
+    final prodIndex = _items.indexWhere((element) => element.id == id);
     // found the index of the product in the Items list
     if (prodIndex >= 0) {
+      final urlori =
+          "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$id.json";
+      final url = Uri.parse(
+        urlori,
+      );
+      await http.patch(
+        // to edit products in the server
+        url,
+        body: json.encode(
+          {
+            'description': newProd.description,
+            'imageUrl': newProd.imageUrl,
+            'price': newProd.price,
+            'title': newProd.title,
+          },
+        ),
+      );
       _items[prodIndex] = newProd;
       // change the old item with the edited item
     }
     notifyListeners();
   }
 
-  void deleteItem(String Id) {
-    _items.removeWhere((element) => element.id == Id);
+  Future<void> deleteItem(String Id) async {
+    final urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$Id.json";
+    final url = Uri.parse(
+      urlori,
+    );
+    final existingProdIndex = _items.indexWhere((element) => element.id == Id);
+    Product? storedDeletedProd = _items[existingProdIndex];
+    // Product? means field can be set to null later
+    _items.removeAt(existingProdIndex);
+    // removing from the list, not from memory = storedDeletedProduct still have the product, because if deletion from
+    // server goes wrong i will insert the product in the list again at the same index
     notifyListeners();
+    final response = await http.delete(url);
+
+    if (response.statusCode >= 400) {
+      // show some error to user
+      _items[existingProdIndex] = storedDeletedProd;
+      // error = deletion went wrong so putting back the product in the list as I still have the product stored in the memory
+      // in the storedDeletedProduct vaiable
+      notifyListeners();
+      throw HttpException('Could not delete file !');
+    }
+    storedDeletedProd = null;
+    // can set to null cause defined this var like Product?, else wouldnt be able to
   }
 
   Product searchById(String id) {

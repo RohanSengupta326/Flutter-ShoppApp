@@ -21,6 +21,7 @@ class ProductOverviewScreen extends StatefulWidget {
 class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
   bool showfav = false;
   bool _isInit = true;
+  bool _isLoading = false;
 
   // HACK FOR CALLING PROVIDER IN INIT STATE
   /* 
@@ -43,7 +44,21 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
     // it actually runs after creating classes but before running build function so can call provider here
     if (_isInit) {
       // using _isInit so that after loading page it just fetch the data once no every time its getting rebuilt
-      Provider.of<Products>(context).fetchOrSetProducts();
+      setState(
+        () {
+          _isLoading = true;
+        },
+      );
+      Provider.of<Products>(context).fetchOrSetProducts().then(
+        (_) {
+          // using then cause inside didChangeDependencies we cant use async and await
+          setState(
+            () {
+              _isLoading = false;
+            },
+          );
+        },
+      );
     }
     _isInit = false;
     super.didChangeDependencies();
@@ -101,7 +116,15 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
           ),
         ],
       ),
-      body: product_grid(showfav),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).primaryColor,
+                ),
+              ),
+            )
+          : product_grid(showfav),
     );
   }
 }
