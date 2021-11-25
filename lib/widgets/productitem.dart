@@ -7,6 +7,7 @@ import '../providers/cart.dart';
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final scaffoldSnack = Scaffold.of(context);
     final product = Provider.of<Product>(context, listen: false);
     // <Product> as this time checking changes from Product class
     // listen false wont rebuild the whole page I use Consumer down below with the iconbutton cz I want that to rebuild only
@@ -39,15 +40,29 @@ class ProductItem extends StatelessWidget {
           ),
           leading: Consumer<Product>(
             // same as provider.of<Product>(context) but just for a particular widget, so this widget only gets rebuilt
-            builder: (ctx, product, child) => IconButton(
+            builder: (ctx, prod, child) => IconButton(
               // product is to get all methods from Product class
               // child is used to store anything in this widget that I dont want to rebuild
               /* child: Text('change nothing!'), => this get stored in that child */
-              onPressed: () {
-                product.toggleFavorite();
+              onPressed: () async {
+                try {
+                  await prod.toggleFavorite(product.id);
+                } catch (error) {
+                  scaffoldSnack.removeCurrentSnackBar();
+                  scaffoldSnack.showSnackBar(
+                    // using scaffoldSnack variable cause cant call scaffold.of(context) inside here due to some internal flutter
+                    // causes
+                    const SnackBar(
+                      duration: Duration(seconds: 4),
+                      content: Text(
+                        'Couldn\'t add/remove  to/from favorites',
+                      ),
+                    ),
+                  );
+                }
               },
               icon: Icon(
-                product.favorite ? Icons.favorite : Icons.favorite_border,
+                prod.favorite ? Icons.favorite : Icons.favorite_border,
               ),
               color: Theme.of(context).colorScheme.secondary,
             ),

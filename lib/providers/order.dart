@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../providers/cart.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class OrderItem {
   final String id;
@@ -23,16 +25,85 @@ class Order with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProducts, double total) {
+  Future<void> fetchAndSetOrders() async {
+    const urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders.json";
+    final url = Uri.parse(
+      urlori,
+    );
+    final List<OrderItem> orderStore = [];
+    final response = await http.get(url);
+    final Map<String, dynamic>? extractedData =
+        json.decode(response.body) as Map<String, dynamic>;
+    if (extractedData == null) {
+      return;
+    }
+    extractedData.forEach(
+      (orderId, orderData) {
+        orderStore.add(
+          OrderItem(
+            id: orderId,
+            price: orderData['price'],
+            products: (orderData['products'] as List<dynamic>)
+                .map(
+                  (item) => CartItem(
+                    id: item['id'],
+                    title: item['title'],
+                    price: item['price'],
+                    quantity: item['quantity'],
+                    imgUrl: item['imageUrl'],
+                  ),
+                )
+                .toList(),
+            datetime: DateTime.parse(
+              orderData['datetime'],
+            ),
+          ),
+        );
+      },
+    );
+    _orders = orderStore.reversed.toList();
+    notifyListeners();
+  }
+
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    final timeStamp = DateTime.now();
+    const urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders.json";
+    final url = Uri.parse(
+      urlori,
+    );
+
+    final response = await http.post(
+      url,
+      body: json.encode(
+        {
+          'price': total,
+          'datetime': timeStamp.toIso8601String(),
+          // toIso.. converts to string but which is easy to convert to date back again
+          'products': cartProducts
+              .map((e) => {
+                    'id': e.id,
+                    'title': e.title,
+                    'quantity': e.quantity,
+                    'price': e.price,
+                    'imageUrl': e.imgUrl,
+                  })
+              .toList(),
+        },
+      ),
+    );
+
     _orders.insert(
       0,
       OrderItem(
         products: cartProducts,
         price: total,
         datetime: DateTime.now(),
-        id: DateTime.now().toString(),
+        id: json.decode(response.body)['name'],
       ),
     );
+
     notifyListeners();
   }
 }

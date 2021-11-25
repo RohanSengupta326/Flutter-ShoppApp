@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../screens/order_screen.dart';
+
 import '../widgets/cart_item.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart.dart';
-import '../providers/order.dart';
+import '../widgets/order_button.dart';
 
 class CartScreen extends StatelessWidget {
   static const routeName = 'cart';
@@ -35,20 +35,7 @@ class CartScreen extends StatelessWidget {
                         child: Text('\$${cartData.totalAmount.toString()}')),
                     backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Provider.of<Order>(context, listen: false).addOrder(
-                        cartData.items.values.toList(),
-                        // converting items in map to list
-                        cartData.totalAmount,
-                      );
-                      cartData.clearCart();
-                      Navigator.of(context).pushNamed(Order_screen.routeName);
-                    },
-                    child: const Text(
-                      'order now !',
-                    ),
-                  ),
+                  OrderButton(cartData: cartData),
                 ],
               ),
             ),

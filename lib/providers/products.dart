@@ -121,10 +121,15 @@ class Products with ChangeNotifier {
     );
     try {
       final response = await http.get(url);
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final Map<String, dynamic>? extractedData =
+          json.decode(response.body) as Map<String, dynamic>;
       // it actually returns a nested map, so thats why we are recieving the data like Map<String...> but not like Map<String, Map<>>
       // cause flutter doesnt understand that
       final List<Product> prods = [];
+      if (extractedData == null) {
+        // if extracted no data then exit
+        return;
+      }
       extractedData.forEach(
         // for each key of the parent map
         (prodIdKey, prodData) {

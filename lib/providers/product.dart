@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
-
+import 'package:flutter_proj6shopapp/models/http_exception.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Product with ChangeNotifier {
   final String id;
@@ -20,8 +21,26 @@ class Product with ChangeNotifier {
   });
 
   // defining this function here cause connected the provider to the Product to check favorite or not
-  void toggleFavorite() {
+  Future<void> toggleFavorite(String id) async {
+    final urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$id.json";
+    final url = Uri.parse(
+      urlori,
+    );
     favorite = !favorite;
     notifyListeners();
+    final response = await http.patch(
+      url,
+      body: json.encode(
+        {
+          'isFavorite': favorite,
+        },
+      ),
+    );
+    if (response.statusCode >= 400) {
+      favorite = !favorite;
+      notifyListeners();
+      throw HttpException('Couldn\'t add/remove to/from favorites');
+    }
   }
 }

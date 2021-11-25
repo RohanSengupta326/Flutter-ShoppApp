@@ -45,6 +45,7 @@ class ManageProducts extends StatelessWidget {
                     // using scaffoldSnack variable cause cant call scaffold.of(context) inside here due to some internal flutter
                     // causes
                     const SnackBar(
+                      duration: Duration(seconds: 4),
                       content: Text(
                         'Couldn\'t delete file ',
                       ),
