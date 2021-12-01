@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_proj6shopapp/providers/cart.dart';
-import 'package:flutter_proj6shopapp/screens/products_editing_screen.dart';
-import '../screens/order_screen.dart';
+import './screens/product_overview_screen.dart';
+import './providers/cart.dart';
+import 'screens/auth_screen.dart';
+import './screens/products_editing_screen.dart';
+import './screens/order_screen.dart';
 import './screens/cart_screen.dart';
 import './screens/product_detail_screen.dart';
-import './screens/product_overview_screen.dart';
+
 import 'package:provider/provider.dart';
 import './providers/products.dart';
 import '../providers/order.dart';
 import './screens/manage_products_screen.dart';
+import './providers/auth.dart';
+import './providers/order.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,43 +26,61 @@ class MyApp extends StatelessWidget {
       // to use multiple providers
       providers: [
         ChangeNotifierProvider(
-          // Connecting the provider
-          create: (ctx) => Products(),
-          // instance of the provider class = Products class
+          create: (ctx) => Auth(),
+          // instance of the Auth class = Auths class
+          // using create: when creating a new instance of a class and for existing object use .value
         ),
-        // using create: when creating a new instance of a class and for existing object use .value
-
+        ChangeNotifierProxyProvider<Auth, Products>(
+          // changes from Auth will come, and need to reflec that in Products(different tokens)
+          create: (ctx) => Products('', ''),
+          update: (ctx, auth, prevProducts) => Products(
+            // auth = pulling data from Auth Provider
+            // prevProducts = before changes in auth products
+            auth.token,
+            // passing the token to products
+            auth.userId,
+          ),
+        ),
         ChangeNotifierProvider(
           create: (ctx) => Cart(),
         ),
-        ChangeNotifierProvider(
-          create: (ctx) => Order(),
-        )
+        ChangeNotifierProxyProvider<Auth, Order>(
+          create: (ctx) => Order(''),
+          update: (_, auth, prevOrders) => Order(auth.token),
+        ),
       ],
       // all 3 providers take this child
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'amazon lite',
-        theme: ThemeData(
-          primarySwatch: Colors.deepPurple,
-          primaryColor: Colors.deepPurple,
-          appBarTheme: const AppBarTheme(
-            color: Colors.deepPurple,
-            elevation: 6,
+      child: Consumer<Auth>(
+        builder: (ctx, authData, _) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'amazon lite',
+          theme: ThemeData(
+            primarySwatch: Colors.deepPurple,
+            primaryColor: Colors.deepPurple,
+            appBarTheme: const AppBarTheme(
+              color: Colors.deepPurple,
+              elevation: 6,
+            ),
+            textTheme: const TextTheme(
+              headline1: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ).copyWith(
+            colorScheme: theme.colorScheme.copyWith(
+              secondary: Colors.yellow,
+            ),
           ),
-        ).copyWith(
-          colorScheme: theme.colorScheme.copyWith(
-            secondary: Colors.yellow,
-          ),
+          home: authData.isAuth ? ProductOverviewScreen() : AuthScreen(),
+          // if authenticated = token found then show products or else show authentication screen
+          routes: {
+            ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+            CartScreen.routeName: (ctx) => CartScreen(),
+            Order_screen.routeName: (ctx) => Order_screen(),
+            ManageProductsScreen.routeName: (ctx) => ManageProductsScreen(),
+            ProductEditingScreen.routeName: (ctx) => ProductEditingScreen(),
+          },
         ),
-        home: ProductOverviewScreen(),
-        routes: {
-          ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-          CartScreen.routeName: (ctx) => CartScreen(),
-          Order_screen.routeName: (ctx) => Order_screen(),
-          ManageProductsScreen.routeName: (ctx) => ManageProductsScreen(),
-          ProductEditingScreen.routeName: (ctx) => ProductEditingScreen(),
-        },
       ),
     );
   }

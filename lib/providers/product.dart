@@ -21,9 +21,9 @@ class Product with ChangeNotifier {
   });
 
   // defining this function here cause connected the provider to the Product to check favorite or not
-  Future<void> toggleFavorite(String id) async {
+  Future<void> toggleFavorite(String id, String token) async {
     final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$id.json";
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$id.json?auth=$token";
     final url = Uri.parse(
       urlori,
     );

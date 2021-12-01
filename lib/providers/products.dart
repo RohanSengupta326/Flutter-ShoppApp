@@ -113,9 +113,15 @@ class Products with ChangeNotifier {
   }
  */
 
+  final String token;
+  final String userId;
+  Products(this.token, this.userId);
+  // accepting the token and the previous products
+
   Future<void> fetchOrSetProducts() async {
-    const urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json";
+    final urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json?auth=$token";
+    // this is how we are sending token to server cause we want to show the products cause logged in successfully
     final url = Uri.parse(
       urlori,
     );
@@ -156,8 +162,8 @@ class Products with ChangeNotifier {
 
   // the same function now with async and await
   Future<void> addProduct(Product productData) async {
-    const urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json";
+    final urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json?auth=$token";
     final url = Uri.parse(
       urlori,
     );
@@ -205,7 +211,7 @@ class Products with ChangeNotifier {
     // found the index of the product in the Items list
     if (prodIndex >= 0) {
       final urlori =
-          "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$id.json";
+          "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$id.json?auth=$token";
       final url = Uri.parse(
         urlori,
       );
@@ -229,7 +235,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteItem(String Id) async {
     final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$Id.json";
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$Id.json?auth=$token";
     final url = Uri.parse(
       urlori,
     );

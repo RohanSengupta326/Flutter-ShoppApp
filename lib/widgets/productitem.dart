@@ -3,6 +3,7 @@ import '../screens/product_detail_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/product.dart';
 import '../providers/cart.dart';
+import '../providers/auth.dart';
 
 class ProductItem extends StatelessWidget {
   @override
@@ -12,6 +13,7 @@ class ProductItem extends StatelessWidget {
     // <Product> as this time checking changes from Product class
     // listen false wont rebuild the whole page I use Consumer down below with the iconbutton cz I want that to rebuild only
     final cart = Provider.of<Cart>(context, listen: false);
+    final auth = Provider.of<Auth>(context, listen: false);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
@@ -46,7 +48,11 @@ class ProductItem extends StatelessWidget {
               /* child: Text('change nothing!'), => this get stored in that child */
               onPressed: () async {
                 try {
-                  await prod.toggleFavorite(product.id);
+                  await prod.toggleFavorite(
+                    product.id,
+                    auth.token,
+                    // sending token to toggle favorite , to let server know user is logged in and using toggleFavorite func
+                  );
                 } catch (error) {
                   scaffoldSnack.removeCurrentSnackBar();
                   scaffoldSnack.showSnackBar(

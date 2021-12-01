@@ -25,9 +25,14 @@ class Order with ChangeNotifier {
     return [..._orders];
   }
 
+  final String token;
+  Order(this.token);
+  // for user log in authentication
+
   Future<void> fetchAndSetOrders() async {
-    const urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders.json";
+    final urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders.json?auth=$token";
+        // users personal token sending to server to let server know user is logged in
     final url = Uri.parse(
       urlori,
     );
@@ -68,8 +73,8 @@ class Order with ChangeNotifier {
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final timeStamp = DateTime.now();
-    const urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders.json";
+    final urlori =
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders.json?auth=$token";
     final url = Uri.parse(
       urlori,
     );
