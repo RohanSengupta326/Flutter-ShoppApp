@@ -53,7 +53,7 @@ class Auth with ChangeNotifier {
 
   Future<void> logIn(String mail, String password) async {
     const uri =
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[YOUR_WEBAPI_KEY]';
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAzFtne3WKJLJdxo4NFqltceEUWRcPnyg4';
     // diff url for login
     final url = Uri.parse(uri);
 
