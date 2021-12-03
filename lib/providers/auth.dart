@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/http_exception.dart';
+import 'dart:async';
+// for Timer
 
 class Auth with ChangeNotifier {
   String _token = '';
   DateTime? _expiryDate;
-  late String userId;
+  late String _userId;
+  Timer? authTimer;
 
   bool get isAuth {
     return (token != '');
@@ -22,6 +26,10 @@ class Auth with ChangeNotifier {
     }
     return '';
     // if token not available
+  }
+
+  String get userId {
+    return _userId;
   }
 
   Future<void> signUp(String mail, String password) async {
@@ -84,10 +92,86 @@ class Auth with ChangeNotifier {
           ),
         ),
       );
-      userId = responseData['localId'];
+      _userId = responseData['localId'];
+      autoLogOut();
+      // once user logs in timer starts
       notifyListeners();
+
+      //storing login user data
+      final prefs = await SharedPreferences.getInstance();
+      final userData = json.encode(
+        {
+          'token': _token,
+          'expiryDate': _expiryDate!.toIso8601String(),
+          'userId': _userId,
+        },
+      );
+      // setting the login data as json
+
+      prefs.setString('userData', userData);
+      // saved the json
+
     } catch (error) {
       throw error;
     }
+  }
+
+  void logOut() {
+    _token = '';
+    _expiryDate = null;
+    _userId = '';
+    if (authTimer != null) {
+      authTimer!.cancel();
+      authTimer = null;
+    }
+    notifyListeners();
+  }
+
+  Future<void> autoLogOut() async {
+    if (authTimer != null) {
+      authTimer!.cancel();
+      // cancel any timer set before setting another one
+    }
+    final expiryTiming = _expiryDate!.difference(DateTime.now()).inSeconds;
+    // subtracting current time from expiry dateTime and converting it in seconds
+    authTimer = Timer(
+      Duration(
+        seconds: expiryTiming,
+      ),
+      logOut,
+    );
+    // wait for that many seconds and call logout then
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    // cause if logged out once delete saved data, dont auto log in
+  }
+
+  Future<bool> autoLogIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('userData')) {
+      return false;
+    }
+    final prefGetString = prefs.getString('userData');
+    // as the json returns object? type so checking if its null or not, or its giving an error to decode directly
+    if (prefGetString == null) {
+      return false;
+    }
+    final extractedUserData =
+        json.decode(prefGetString) as Map<String, dynamic>;
+        // as null checked now decode works 
+
+    final expiryDate = DateTime.parse(extractedUserData['expiryDate']);
+
+    if (expiryDate.isBefore(DateTime.now())) {
+      return false;
+    }
+
+    _token = extractedUserData['token'];
+    _userId = extractedUserData['userId'];
+    _expiryDate = expiryDate;
+    notifyListeners();
+    autoLogOut();
+    return true;
   }
 }

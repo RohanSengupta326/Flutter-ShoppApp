@@ -21,20 +21,22 @@ class Product with ChangeNotifier {
   });
 
   // defining this function here cause connected the provider to the Product to check favorite or not
-  Future<void> toggleFavorite(String id, String token) async {
+  Future<void> toggleFavorite(String userId, String token) async {
     final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$id.json?auth=$token";
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/userFavorites/$userId/$id.json?auth=$token";
+    // creating new folder userFavorites in firebase to store favorites true/false for each user
     final url = Uri.parse(
       urlori,
     );
     favorite = !favorite;
     notifyListeners();
-    final response = await http.patch(
+    /* final response = await http.patch( */
+    // patch was to update data in the database
+    final response = await http.put(
+      // put is to replace data, putting fav true or false for that user
       url,
       body: json.encode(
-        {
-          'isFavorite': favorite,
-        },
+        favorite,
       ),
     );
     if (response.statusCode >= 400) {

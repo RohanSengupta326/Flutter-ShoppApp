@@ -47,12 +47,18 @@ class _Order_screenState extends State<Order_screen> {
                 ),
               ),
             )
-          : ListView.builder(
-              itemCount: orderData.orders.length,
-              itemBuilder: (ctx, index) => Orderitem(
-                orderData.orders[index],
-              ),
-            ),
+          : orderData.orders.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No orders to show!',
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: orderData.orders.length,
+                  itemBuilder: (ctx, index) => Orderitem(
+                    orderData.orders[index],
+                  ),
+                ),
     );
   }
 }

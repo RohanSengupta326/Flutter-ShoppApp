@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './screens/splash_screen.dart';
 import './screens/product_overview_screen.dart';
 import './providers/cart.dart';
 import 'screens/auth_screen.dart';
@@ -45,8 +46,8 @@ class MyApp extends StatelessWidget {
           create: (ctx) => Cart(),
         ),
         ChangeNotifierProxyProvider<Auth, Order>(
-          create: (ctx) => Order(''),
-          update: (_, auth, prevOrders) => Order(auth.token),
+          create: (ctx) => Order('', ''),
+          update: (_, auth, prevOrders) => Order(auth.token, auth.userId),
         ),
       ],
       // all 3 providers take this child
@@ -71,8 +72,17 @@ class MyApp extends StatelessWidget {
               secondary: Colors.yellow,
             ),
           ),
-          home: authData.isAuth ? ProductOverviewScreen() : AuthScreen(),
-          // if authenticated = token found then show products or else show authentication screen
+          home: authData.isAuth
+              // if authenticated = token found then show products or else show authentication screen
+              ? ProductOverviewScreen()
+              : FutureBuilder(
+                  future: authData.autoLogIn(),
+                  // if this returns true, then consumer rebuilds and authData.isAuth will return true so it will auto log in
+                  builder: (ctx, snapshot) =>
+                      snapshot.connectionState == ConnectionState.waiting
+                          ? SplashScreen()
+                          : AuthScreen(),
+                ),
           routes: {
             ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
             CartScreen.routeName: (ctx) => CartScreen(),

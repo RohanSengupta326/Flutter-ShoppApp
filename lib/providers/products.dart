@@ -115,14 +115,21 @@ class Products with ChangeNotifier {
 
   final String token;
   final String userId;
+  // getting the userId to fetch favorites products
   Products(this.token, this.userId);
   // accepting the token and the previous products
 
-  Future<void> fetchOrSetProducts() async {
-    final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json?auth=$token";
-    // this is how we are sending token to server cause we want to show the products cause logged in successfully
-    final url = Uri.parse(
+  Future<void> fetchOrSetProducts([bool userProd = false]) async {
+    // [] optional arguments
+    final creatorProd =
+        userProd == false ? '' : 'orderBy="creatorId"&equalTo="$userId"';
+        // search with orderBy and check if equal to userId
+    var urlori =
+        'https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json?auth=$token&$creatorProd';
+    // this is how we are sending token to server(?auth=token) cause we want to show the products cause logged in successfully
+    // & to connect string together, orderBy="creatorId" to search with creatorId which is equal to userId
+    // and import only product which matches with creatorId
+    var url = Uri.parse(
       urlori,
     );
     try {
@@ -136,7 +143,14 @@ class Products with ChangeNotifier {
         // if extracted no data then exit
         return;
       }
-      extractedData.forEach(
+
+      urlori =
+          "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$token";
+      url = Uri.parse(urlori);
+      // changed url now to fetch favorites
+      final favResponse = await http.get(url);
+      final favResponseData = json.decode(favResponse.body);
+      final favoriteResponse = extractedData.forEach(
         // for each key of the parent map
         (prodIdKey, prodData) {
           // prodIdKey is the key of the parent map, prodData is the child map
@@ -147,7 +161,10 @@ class Products with ChangeNotifier {
               imageUrl: prodData['imageUrl'],
               price: prodData['price'],
               title: prodData['title'],
-              favorite: prodData['isFavorite'],
+              favorite: favResponseData == null
+                  ? false
+                  : (favResponseData[prodIdKey] == null ? false : true),
+              // if no favorites folder return false, if no favorite for that prodId then also return false
             ),
           );
         },
@@ -176,11 +193,11 @@ class Products with ChangeNotifier {
         body: json.encode(
           // converts this map to json, comes from dart:convert package
           {
+            'creatorId': userId,
             'title': productData.title,
             'description': productData.description,
             'price': productData.price,
             'imageUrl': productData.imageUrl,
-            'isFavorite': productData.favorite,
           },
         ),
       );

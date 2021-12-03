@@ -26,20 +26,24 @@ class Order with ChangeNotifier {
   }
 
   final String token;
-  Order(this.token);
+  final String userId;
+  Order(this.token, this.userId);
   // for user log in authentication
 
   Future<void> fetchAndSetOrders() async {
     final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders.json?auth=$token";
-        // users personal token sending to server to let server know user is logged in
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders/$userId.json?auth=$token";
+    // users personal token sending to server to let server know user is logged in
     final url = Uri.parse(
       urlori,
     );
     final List<OrderItem> orderStore = [];
     final response = await http.get(url);
+
+    final responseBody = json.decode(response.body);
     final Map<String, dynamic>? extractedData =
-        json.decode(response.body) as Map<String, dynamic>;
+        responseBody == null ? null : responseBody as Map<String, dynamic>;
+
     if (extractedData == null) {
       return;
     }
@@ -74,7 +78,7 @@ class Order with ChangeNotifier {
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final timeStamp = DateTime.now();
     final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders.json?auth=$token";
+        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders/$userId.json?auth=$token";
     final url = Uri.parse(
       urlori,
     );

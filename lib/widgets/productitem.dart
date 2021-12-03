@@ -49,7 +49,8 @@ class ProductItem extends StatelessWidget {
               onPressed: () async {
                 try {
                   await prod.toggleFavorite(
-                    product.id,
+                    auth.userId,
+                    // sending userId to create new userFavorites folder to 
                     auth.token,
                     // sending token to toggle favorite , to let server know user is logged in and using toggleFavorite func
                   );
