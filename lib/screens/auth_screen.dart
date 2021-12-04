@@ -92,7 +92,9 @@ class AuthCard extends StatefulWidget {
   _AuthCardState createState() => _AuthCardState();
 }
 
-class _AuthCardState extends State<AuthCard> {
+class _AuthCardState extends State<AuthCard>
+    with SingleTickerProviderStateMixin {
+  // to use vsync in AnimationController()
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
   Map<String, String> _authData = {
@@ -101,6 +103,48 @@ class _AuthCardState extends State<AuthCard> {
   };
   var _isLoading = false;
   final _passwordController = TextEditingController();
+
+  late AnimationController _controller;
+  late Animation<Size> _heightAnimation;
+  // <Size> means I want to include size animation
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(
+        milliseconds: 300,
+      ),
+    );
+    _heightAnimation = Tween<Size>(
+      begin: const Size(
+        double.infinity,
+        260,
+      ),
+      end: const Size(
+        double.infinity,
+        320,
+      ),
+      // tween takes the data and then animate actually return the Animation
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
+    /* _heightAnimation.addListener(() => setState(() {}));
+    // just to rebuild the widget */
+    //  dont need to call manually if using AnimationBuilder
+    super.initState();
+  }
+
+  /* @override
+  void dispose() {
+    _controller.dispose();
+    _heightAnimation.removeListener(() {});
+    super.dispose();
+  } */
+  // not needed if using animationbuilder
 
   void _showErrorDialog(String errorMessage) {
     showDialog(
@@ -167,13 +211,21 @@ class _AuthCardState extends State<AuthCard> {
 
   void _switchAuthMode() {
     if (_authMode == AuthMode.Login) {
-      setState(() {
-        _authMode = AuthMode.Signup;
-      });
+      setState(
+        () {
+          _authMode = AuthMode.Signup;
+        },
+      );
+      _controller.forward();
+      // starting the animation
     } else {
-      setState(() {
-        _authMode = AuthMode.Login;
-      });
+      setState(
+        () {
+          _authMode = AuthMode.Login;
+        },
+      );
+      _controller.reverse();
+      // reverse the animation
     }
   }
 
@@ -185,12 +237,20 @@ class _AuthCardState extends State<AuthCard> {
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
-      child: Container(
-        height: _authMode == AuthMode.Signup ? 320 : 260,
-        constraints:
-            BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
-        width: deviceSize.width * 0.75,
-        padding: const EdgeInsets.all(16.0),
+      child: AnimatedBuilder(
+        // to rebuild only the needed portion to animate only the needed thing, here the container only 
+        animation: _heightAnimation,
+        builder: (ctx, ch) => Container(
+          height: _heightAnimation.value.height,
+          // included the animation
+          constraints: BoxConstraints(
+            minHeight: _heightAnimation.value.height,
+          ),
+          width: deviceSize.width * 0.75,
+          padding: const EdgeInsets.all(16.0),
+          child: ch,
+          // ch wont be rebuild, ch = child: Form(..) just like consumer child
+        ),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
