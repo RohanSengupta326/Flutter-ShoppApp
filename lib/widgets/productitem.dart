@@ -25,9 +25,21 @@ class ProductItem extends StatelessWidget {
               arguments: product.id,
             );
           },
-          child: Image.network(
-            product.imageUrl,
-            fit: BoxFit.cover,
+          child: Hero(
+            // click an image, it will expand to product detail screen
+            // also add the Hero widget to the widget on the page where you wanna expand the image to
+            tag: product.id,
+            // give the id of the product 
+            child: FadeInImage(
+              // when image loads it shows an icon, when it completes loading the actual image comes in place of the placdeholder img
+              placeholder: const AssetImage(
+                'assets/images/waiting.jpeg',
+              ),
+              image: NetworkImage(
+                product.imageUrl,
+              ),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
         footer: GridTileBar(
@@ -50,7 +62,7 @@ class ProductItem extends StatelessWidget {
                 try {
                   await prod.toggleFavorite(
                     auth.userId,
-                    // sending userId to create new userFavorites folder to 
+                    // sending userId to create new userFavorites folder to
                     auth.token,
                     // sending token to toggle favorite , to let server know user is logged in and using toggleFavorite func
                   );

@@ -105,9 +105,15 @@ class _AuthCardState extends State<AuthCard>
   final _passwordController = TextEditingController();
 
   late AnimationController _controller;
+
   late Animation<Size> _heightAnimation;
   // <Size> means I want to include size animation
+  // wont be needed if used AnimatedContainer
 
+  late Animation<double> _opacityAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  // wont be needed if used animatedContainer, but for widgets like FadeTransition and SlideTransition its needed
   @override
   void initState() {
     _controller = AnimationController(
@@ -135,6 +141,23 @@ class _AuthCardState extends State<AuthCard>
     /* _heightAnimation.addListener(() => setState(() {}));
     // just to rebuild the widget */
     //  dont need to call manually if using AnimationBuilder
+
+    _opacityAnimation = Tween(begin: 0.0, end: 1.0).animate(
+      // for using FadeTransition
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeIn,
+      ),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, -1.5), end: const Offset(0, 0))
+            .animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
     super.initState();
   }
 
@@ -217,7 +240,7 @@ class _AuthCardState extends State<AuthCard>
         },
       );
       _controller.forward();
-      // starting the animation
+      // starting the animation for FadeTransition
     } else {
       setState(
         () {
@@ -225,7 +248,7 @@ class _AuthCardState extends State<AuthCard>
         },
       );
       _controller.reverse();
-      // reverse the animation
+      // reverse the FadeTransition animation
     }
   }
 
@@ -237,7 +260,7 @@ class _AuthCardState extends State<AuthCard>
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
-      child: AnimatedBuilder(
+      child: /* AnimatedBuilder(
         // to rebuild only the needed portion to animate only the needed thing, here the container only 
         animation: _heightAnimation,
         builder: (ctx, ch) => Container(
@@ -250,7 +273,20 @@ class _AuthCardState extends State<AuthCard>
           padding: const EdgeInsets.all(16.0),
           child: ch,
           // ch wont be rebuild, ch = child: Form(..) just like consumer child
+        ), */
+          // There is also a inbuilt widget to manage these internally
+
+          AnimatedContainer(
+        // dont need to add anything else just the duration and curve widget, height and contraints are normally
+        // defined but animatedContainer automatically animates that
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+        height: _authMode == AuthMode.Signup ? 320 : 260,
+        constraints: BoxConstraints(
+          minHeight: _authMode == AuthMode.Signup ? 320 : 260,
         ),
+        width: deviceSize.width * 0.75,
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -283,21 +319,37 @@ class _AuthCardState extends State<AuthCard>
                     _authData['password'] = value as String;
                   },
                 ),
-                if (_authMode == AuthMode.Signup)
-                  TextFormField(
-                    enabled: _authMode == AuthMode.Signup,
-                    // only enabled when AuthMode.Signup
-                    decoration:
-                        const InputDecoration(labelText: 'Confirm Password'),
-                    obscureText: true,
-                    validator: _authMode == AuthMode.Signup
-                        ? (value) {
-                            if (value != _passwordController.text) {
-                              return 'Passwords do not match!';
-                            }
-                          }
-                        : null,
+                /* if (_authMode == AuthMode.Signup) */
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  constraints: BoxConstraints(
+                    maxHeight: _authMode == AuthMode.Signup ? 120 : 0,
+                    minHeight: _authMode == AuthMode.Signup ? 60 : 0,
                   ),
+                  curve: Curves.easeIn,
+                  child: FadeTransition(
+                    // for adding fade transition
+                    opacity: _opacityAnimation,
+                    child: SlideTransition(
+                      // this effect make it looks like the textfield is coming down and going in the above text field
+                      position: _slideAnimation,
+                      child: TextFormField(
+                        enabled: _authMode == AuthMode.Signup,
+                        // only enabled when AuthMode.Signup
+                        decoration: const InputDecoration(
+                            labelText: 'Confirm Password'),
+                        obscureText: true,
+                        validator: _authMode == AuthMode.Signup
+                            ? (value) {
+                                if (value != _passwordController.text) {
+                                  return 'Passwords do not match!';
+                                }
+                              }
+                            : null,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(
                   height: 20,
                 ),
