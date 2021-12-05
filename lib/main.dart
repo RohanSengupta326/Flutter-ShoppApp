@@ -14,6 +14,7 @@ import '../providers/order.dart';
 import './screens/manage_products_screen.dart';
 import './providers/auth.dart';
 import './providers/order.dart';
+import './helper/route_transition.dart';
 
 void main() {
   runApp(MyApp());
@@ -71,6 +72,11 @@ class MyApp extends StatelessWidget {
             colorScheme: theme.colorScheme.copyWith(
               secondary: Colors.yellow,
             ),
+            pageTransitionsTheme: PageTransitionsTheme(builders: {
+              TargetPlatform.android: CustomPageTransitionBuilder(),
+              TargetPlatform.iOS: CustomPageTransitionBuilder(),
+              // added Fading animation when shifting from page to page
+            }),
           ),
           home: authData.isAuth
               // if authenticated = token found then show products or else show authentication screen
