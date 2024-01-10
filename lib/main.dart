@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
             // auth = pulling data from Auth Provider
             // prevProducts = before changes in auth products
             auth.token,
-            // passing the token to products
+            // passing the token to products page / widget. 
             auth.userId,
           ),
         ),
