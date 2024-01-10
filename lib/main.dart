@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
           // using create: when creating a new instance of a class and for existing object use .value
         ),
         ChangeNotifierProxyProvider<Auth, Products>(
-          // changes from Auth will come, and need to reflec that in Products(different tokens)
+          // changes from Auth will come, and need to reflect that in Products(different tokens)
           create: (ctx) => Products('', ''),
           update: (ctx, auth, prevProducts) => Products(
             // auth = pulling data from Auth Provider

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../api/api_keys.dart';
 import 'package:flutter_proj6shopapp/models/http_exception.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -23,7 +24,7 @@ class Product with ChangeNotifier {
   // defining this function here cause connected the provider to the Product to check favorite or not
   Future<void> toggleFavorite(String userId, String token) async {
     final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/userFavorites/$userId/$id.json?auth=$token";
+        "${ApiKeys.firebaseUrl}/userFavorites/$userId/$id.json?auth=$token";
     // creating new folder userFavorites in firebase to store favorites true/false for each user
     final url = Uri.parse(
       urlori,

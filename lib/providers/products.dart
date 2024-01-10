@@ -1,3 +1,5 @@
+import '../api/api_keys.dart';
+
 import './product.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -63,7 +65,7 @@ class Products with ChangeNotifier {
 
     // add http requests in provider
     const urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json";
+        "${ApiKeys.firebaseUrl}/products.json";
     final url = Uri.parse(
       urlori,
     );
@@ -123,9 +125,9 @@ class Products with ChangeNotifier {
     // [] optional arguments
     final creatorProd =
         userProd == false ? '' : 'orderBy="creatorId"&equalTo="$userId"';
-        // search with orderBy and check if equal to userId
+    // search with orderBy and check if equal to userId
     var urlori =
-        'https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json?auth=$token&$creatorProd';
+        '${ApiKeys.firebaseUrl}/products.json?auth=$token&$creatorProd';
     // this is how we are sending token to server(?auth=token) cause we want to show the products cause logged in successfully
     // & to connect string together, orderBy="creatorId" to search with creatorId which is equal to userId
     // and import only product which matches with creatorId
@@ -144,8 +146,7 @@ class Products with ChangeNotifier {
         return;
       }
 
-      urlori =
-          "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$token";
+      urlori = "${ApiKeys.firebaseUrl}/userFavorites/$userId.json?auth=$token";
       url = Uri.parse(urlori);
       // changed url now to fetch favorites
       final favResponse = await http.get(url);
@@ -179,8 +180,7 @@ class Products with ChangeNotifier {
 
   // the same function now with async and await
   Future<void> addProduct(Product productData) async {
-    final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products.json?auth=$token";
+    final urlori = "${ApiKeys.firebaseUrl}/products.json?auth=$token";
     final url = Uri.parse(
       urlori,
     );
@@ -227,8 +227,7 @@ class Products with ChangeNotifier {
     final prodIndex = _items.indexWhere((element) => element.id == id);
     // found the index of the product in the Items list
     if (prodIndex >= 0) {
-      final urlori =
-          "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$id.json?auth=$token";
+      final urlori = "${ApiKeys.firebaseUrl}/products/$id.json?auth=$token";
       final url = Uri.parse(
         urlori,
       );
@@ -251,8 +250,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> deleteItem(String Id) async {
-    final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/products/$Id.json?auth=$token";
+    final urlori = "${ApiKeys.firebaseUrl}/products/$Id.json?auth=$token";
     final url = Uri.parse(
       urlori,
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../api/api_keys.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -33,8 +34,8 @@ class Auth with ChangeNotifier {
   }
 
   Future<void> signUp(String mail, String password) async {
-    const uri =
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=[API_KEY]';
+    String uri =
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${ApiKeys.cloudApiKey}';
     final url = Uri.parse(uri);
 
     try {
@@ -60,8 +61,8 @@ class Auth with ChangeNotifier {
   }
 
   Future<void> logIn(String mail, String password) async {
-    const uri =
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[API_KEY]';
+    String uri =
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${ApiKeys.cloudApiKey}';
     // diff url for login
     final url = Uri.parse(uri);
 
@@ -159,7 +160,7 @@ class Auth with ChangeNotifier {
     }
     final extractedUserData =
         json.decode(prefGetString) as Map<String, dynamic>;
-        // as null checked now decode works 
+    // as null checked now decode works
 
     final expiryDate = DateTime.parse(extractedUserData['expiryDate']);
 

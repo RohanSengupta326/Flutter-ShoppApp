@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../api/api_keys.dart';
 
 import '../providers/cart.dart';
 import 'package:http/http.dart' as http;
@@ -32,7 +33,7 @@ class Order with ChangeNotifier {
 
   Future<void> fetchAndSetOrders() async {
     final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders/$userId.json?auth=$token";
+        "${ApiKeys.firebaseUrl}/orders/$userId.json?auth=$token";
     // users personal token sending to server to let server know user is logged in
     final url = Uri.parse(
       urlori,
@@ -78,7 +79,7 @@ class Order with ChangeNotifier {
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final timeStamp = DateTime.now();
     final urlori =
-        "https://fluttershopapp-e18fe-default-rtdb.firebaseio.com/orders/$userId.json?auth=$token";
+        "${ApiKeys.firebaseUrl}/orders/$userId.json?auth=$token";
     final url = Uri.parse(
       urlori,
     );
