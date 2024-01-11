@@ -28,7 +28,7 @@ Welcome to our Ecommerce App – your go-to solution for a seamless online shopp
 ## Set Up and run the Project :
 
 #### Requirements : 
- 1. Flutter
+ 1. Flutter SDK
  2. Android Studio 
  3. Emulator/Real Device(Android)
 

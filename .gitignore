@@ -9,7 +9,7 @@
 .history
 .svn/
 lib/api
-.fvm
+
 
 # IntelliJ related
 *.iml
