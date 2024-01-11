@@ -209,6 +209,14 @@ class _AuthCardState extends State<AuthCard>
           _authData['email'] as String,
           _authData['password'] as String,
         );
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Successfully Signed-In, Now Log-In to continue',
+            ),
+          ),
+        );
       }
     } on HttpException catch (error) {
       // on HttpException = to catch only that type of error
