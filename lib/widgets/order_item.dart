@@ -15,6 +15,19 @@ class Orderitem extends StatefulWidget {
 
 class _OrderitemState extends State<Orderitem> {
   var _expanded = false;
+
+  int calculateOrderListHeight() {
+    int numberOfItems = widget.order.products.length;
+
+    int maxItemTitleLength = 0;
+    for (int i = 0; i < numberOfItems; i++) {
+      maxItemTitleLength =
+          max(maxItemTitleLength, widget.order.products[i].title.length);
+    }
+
+    return maxItemTitleLength;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -40,25 +53,27 @@ class _OrderitemState extends State<Orderitem> {
             curve: Curves.easeIn,
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
             height: _expanded
-                ? min(widget.order.products.length * 20.0 + 10, 100)
+                ? (widget.order.products.length * calculateOrderListHeight())
+                    .toDouble()
                 : 5,
             child: ListView(
               children: widget.order.products
                   .map(
-                    (prod) => Row(
+                    (prod) => Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         Text(
                           prod.title,
+                          softWrap: true,
                           style: const TextStyle(
-                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           '${prod.quantity}x₹${prod.price}',
+                          softWrap: true,
                           style: const TextStyle(
-                            fontSize: 18,
                             color: Colors.grey,
                           ),
                         )
