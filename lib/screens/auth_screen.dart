@@ -213,7 +213,7 @@ class _AuthCardState extends State<AuthCard>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Successfully Signed-In, Now Log-In to continue',
+              'Successfully Signed-Up! Now Log-In to continue',
             ),
           ),
         );
