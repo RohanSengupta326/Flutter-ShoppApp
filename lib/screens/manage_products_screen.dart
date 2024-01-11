@@ -7,10 +7,11 @@ import '../widgets/manage_products.dart';
 
 class ManageProductsScreen extends StatelessWidget {
   static const routeName = '/manage-products';
+  late var productsProvider;
 
   Future<void> _refreshProds(BuildContext context) async {
-    await Provider.of<Products>(context, listen: false)
-        .fetchOrSetProducts(true);
+    productsProvider = Provider.of<Products>(context, listen: false);
+    await productsProvider.fetchOrSetProducts(true);
     // sending true to fetchOrSetProducts cause this page only shows creatorProduct not all product
   }
 
@@ -47,32 +48,38 @@ class ManageProductsScreen extends StatelessWidget {
                       ),
                     ),
                   )
-                : RefreshIndicator(
-                    // pull to refresh
-                    onRefresh: () => _refreshProds(context),
-                    // onRefresh takes a future
-                    child: Consumer<Products>(
-                      // only rebuild the needed function else it will go into a infinite loop, cause we are already using
-                      // future builder and all above
-                      builder: (ctx, userProducts, _) => Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ListView.builder(
-                          itemBuilder: (ctx, index) => Column(
-                            // this column to put the divider in between
-                            children: [
-                              ManageProducts(
-                                userProducts.items[index].id,
-                                userProducts.items[index].title,
-                                userProducts.items[index].imageUrl,
+                : productsProvider.items.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No Items to show!',
+                        ),
+                      )
+                    : RefreshIndicator(
+                        // pull to refresh
+                        onRefresh: () => _refreshProds(context),
+                        // onRefresh takes a future
+                        child: Consumer<Products>(
+                          // only rebuild the needed function else it will go into a infinite loop, cause we are already using
+                          // future builder and all above
+                          builder: (ctx, userProducts, _) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListView.builder(
+                              itemBuilder: (ctx, index) => Column(
+                                // this column to put the divider in between
+                                children: [
+                                  ManageProducts(
+                                    userProducts.items[index].id,
+                                    userProducts.items[index].title,
+                                    userProducts.items[index].imageUrl,
+                                  ),
+                                  const Divider(),
+                                ],
                               ),
-                              const Divider(),
-                            ],
+                              itemCount: userProducts.items.length,
+                            ),
                           ),
-                          itemCount: userProducts.items.length,
                         ),
                       ),
-                    ),
-                  ),
       ),
     );
   }

@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
       child: Consumer<Auth>(
         builder: (ctx, authData, _) => MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'amazon lite',
+          title: 'Ecommerce App',
           theme: ThemeData(
             primarySwatch: Colors.deepPurple,
             primaryColor: Colors.deepPurple,

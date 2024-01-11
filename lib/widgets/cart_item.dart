@@ -77,7 +77,7 @@ class Cartitem extends StatelessWidget {
           ),
         );
       },
-      
+
       onDismissed: (direction) {
         Provider.of<Cart>(context, listen: false).removeItem(prodid);
         // calling the function to delete items from map
@@ -104,11 +104,12 @@ class Cartitem extends StatelessWidget {
                 ),
                 Container(
                   width: 30,
-                  height: 11,
-                  child: Text(
-                    '\$$price',
-                    style: const TextStyle(
-                      fontSize: 12,
+                  child: FittedBox(
+                    child: Text(
+                      '₹$price',
+                      style: const TextStyle(
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ),

@@ -32,7 +32,7 @@ class CartScreen extends StatelessWidget {
                   Chip(
                     // a rounded corner small space
                     label: FittedBox(
-                        child: Text('\$${cartData.totalAmount.toString()}')),
+                        child: Text('₹${cartData.totalAmount.toString()}')),
                     backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                   OrderButton(cartData: cartData),
