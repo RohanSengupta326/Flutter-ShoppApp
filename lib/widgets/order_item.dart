@@ -37,7 +37,7 @@ class _OrderitemState extends State<Orderitem> {
           ListTile(
             title: Text('₹${widget.order.price}'),
             subtitle: Text(
-              DateFormat('dd MM yyyy hh:mm').format(widget.order.datetime),
+              DateFormat('EEE, M/d/y').format(widget.order.datetime),
             ),
             trailing: IconButton(
               icon: const Icon(Icons.expand_more),
