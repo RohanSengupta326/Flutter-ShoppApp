@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import './screens/splash_screen.dart';
 import './screens/product_overview_screen.dart';
 import './providers/cart.dart';
@@ -17,6 +18,9 @@ import './providers/order.dart';
 import './helper/route_transition.dart';
 
 void main() {
+  SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+
   runApp(MyApp());
 }
 
@@ -39,7 +43,7 @@ class MyApp extends StatelessWidget {
             // auth = pulling data from Auth Provider
             // prevProducts = before changes in auth products
             auth.token,
-            // passing the token to products page / widget. 
+            // passing the token to products page / widget.
             auth.userId,
           ),
         ),

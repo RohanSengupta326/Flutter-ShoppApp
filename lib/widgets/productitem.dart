@@ -29,7 +29,7 @@ class ProductItem extends StatelessWidget {
             // click an image, it will expand to product detail screen
             // also add the Hero widget to the widget on the page where you wanna expand the image to
             tag: product.id,
-            // give the id of the product 
+            // give the id of the product
             child: FadeInImage(
               // when image loads it shows an icon, when it completes loading the actual image comes in place of the placdeholder img
               placeholder: const AssetImage(
@@ -45,12 +45,19 @@ class ProductItem extends StatelessWidget {
         footer: GridTileBar(
           backgroundColor: Colors.black54,
           // GridTileBar best used with footer
-          title: Center(
-            child: FittedBox(
-              child: Text(
-                product.title,
-              ),
-            ),
+          title: LayoutBuilder(
+            builder: (buildContext, boxConstraints) {
+              return Center(
+                child: Text(
+                  product.title.length < boxConstraints.maxWidth
+                      ? product.title
+                      : '${product.title.substring(
+                          0,
+                          (boxConstraints.maxWidth - 5).toInt(),
+                        )}...',
+                ),
+              );
+            },
           ),
           leading: Consumer<Product>(
             // same as provider.of<Product>(context) but just for a particular widget, so this widget only gets rebuilt

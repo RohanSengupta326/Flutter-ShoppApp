@@ -33,12 +33,6 @@ class ProductDetailScreen extends StatelessWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               // appbar effect mentioned above
-              title: Container(
-                color: Colors.black54,
-                child: Text(
-                  loadedProduct.title,
-                ),
-              ),
               background: Hero(
                 // image effect mentioned above
                 tag: loadedProduct.id,
@@ -63,7 +57,21 @@ class ProductDetailScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(
-                  height: 10,
+                  height: 20,
+                ),
+                Container(
+                  margin: EdgeInsets.all(16),
+                  child: Text(
+                    loadedProduct.title,
+                    softWrap: true,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
