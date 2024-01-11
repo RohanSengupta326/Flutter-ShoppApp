@@ -44,7 +44,7 @@ Welcome to our Ecommerce App – your go-to solution for a seamless online shopp
 3. or, connect a physical device : https://stackoverflow.com/questions/54444538/how-do-i-run-test-my-flutter-app-on-a-real-device
 
 - Clone this repository after forking using `git clone `.
-- `cd EcommerceApp`.
+- `cd Flutter-ShoppApp`.
 - install the required Flutter version, globally or using fvm. ( Check the version of this project in : `.fvm/fvm_config.json` )
 - `flutter pub get` to get all the dependencies.
 - `flutter run` to run the project on connected device / emulator or, run from your IDE.
