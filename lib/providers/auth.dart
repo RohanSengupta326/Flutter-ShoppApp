@@ -117,7 +117,7 @@ class Auth with ChangeNotifier {
     }
   }
 
-  void logOut() {
+  void logOut([bool isAutoLogOut = false]) async {
     _token = '';
     _expiryDate = null;
     _userId = '';
@@ -125,7 +125,14 @@ class Auth with ChangeNotifier {
       authTimer!.cancel();
       authTimer = null;
     }
+    // print('#################### LOGGED OUT #####################');
     notifyListeners();
+
+    if (isAutoLogOut == false) {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.clear();
+      // cause if logged out once intentionally, delete saved data, dont auto log in
+    }
   }
 
   Future<void> autoLogOut() async {
@@ -139,16 +146,13 @@ class Auth with ChangeNotifier {
       Duration(
         seconds: expiryTiming,
       ),
-      logOut,
+      () => logOut(true),
     );
     // wait for that many seconds and call logout then
-
-    final prefs = await SharedPreferences.getInstance();
-    prefs.clear();
-    // cause if logged out once delete saved data, dont auto log in
   }
 
   Future<bool> autoLogIn() async {
+    // print('############# AUTO LOG IN CALLED ###############');
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('userData')) {
       return false;
