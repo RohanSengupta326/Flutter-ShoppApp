@@ -34,7 +34,7 @@ class product_grid extends StatelessWidget {
             itemBuilder: (ctx, index) => ChangeNotifierProvider.value(
               // connecting provider to ProductItem cause thats the page we want to rebuild
               value: products[index],
-              //ChangeNotifierProvider cleans the old date so that data doesnt overflow
+              //ChangeNotifierProvider cleans the old data so that data doesnt overflow
               /* create: (ctx)=> producuts[i] */
               //not using this cause when a lot of items it puts items in recyle list
               // as the isFavorite is in the list _items, so it has to check the changes from there

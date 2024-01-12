@@ -36,7 +36,7 @@ class _OrderButtonState extends State<OrderButton> {
                     });
                     await Provider.of<Order>(context, listen: false).addOrder(
                       widget.cartData.items.values.toList(),
-                      // converting items in map to list
+                      // converting values in map to list
                       widget.cartData.totalAmount,
                     );
                     setState(() {
