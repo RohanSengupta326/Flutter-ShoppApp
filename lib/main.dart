@@ -19,7 +19,8 @@ import './helper/route_transition.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+    const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+  );
 
   runApp(MyApp());
 }
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData();
     return MultiProvider(
-      // to use multiple providers
+      // to use multiple providers 
       providers: [
         ChangeNotifierProvider(
           create: (ctx) => Auth(),
