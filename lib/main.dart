@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (ctx) => Auth(),
-          // instance of the Auth class = Auths class
+          // instance of the Auth class = Auths class. 
           // using create: when creating a new instance of a class and for existing object use .value
         ),
         ChangeNotifierProxyProvider<Auth, Products>(
